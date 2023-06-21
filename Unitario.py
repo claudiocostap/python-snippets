@@ -1,3 +1,54 @@
+
+import os
+from unittest.mock import patch, MagicMock
+import pytest
+import mysql.connector
+from module import get_connection
+
+@pytest.fixture
+def mock_os_environ():
+    with patch.dict("os.environ", {
+        "LIBMYSQL_ENABLE_CLEARTEXT_PLUGIN": "1",
+        "DB_HOST": "localhost",
+        "DB_PORT": "3306",
+        "DB_USER": "user",
+        "DB_PASS": "password",
+        "DB_NAME": "database",
+        "DB_SECRETS_PMD": "secret"
+    }):
+        yield
+
+@pytest.fixture
+def mock_mysql_connector_connect():
+    with patch("mysql.connector.connect") as mock:
+        yield mock
+
+def test_get_connection(mock_os_environ, mock_mysql_connector_connect):
+    # Configurando o mock do método connect
+    mock_connection = MagicMock(spec=mysql.connector.connection_cext.CMySQLConnection)
+    mock_mysql_connector_connect.return_value = mock_connection
+
+    conn = get_connection()
+
+    # Asserts
+    mock_mysql_connector_connect.assert_called_once_with(
+        host="localhost",
+        user="user",
+        passwd="password",
+        port="3306",
+        database="database",
+        ssl_ca="ca_bundle.crt"
+    )
+    assert conn == mock_connection
+
+if __name__ == "__main__":
+    pytest.main()
+
+
+
+
+
+
 import pytest
 from unittest.mock import patch, MagicMock
 from module import process_notification
