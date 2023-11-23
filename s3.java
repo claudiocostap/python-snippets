@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class ChangeS3ObjectTag {
@@ -38,7 +37,7 @@ public class ChangeS3ObjectTag {
     private static List<Tag> getObjectTags(AmazonS3 s3Client, String bucketName, String objectKey) {
         GetObjectTaggingRequest getObjectTaggingRequest = new GetObjectTaggingRequest(bucketName, objectKey);
         GetObjectTaggingResponse getObjectTaggingResponse = s3Client.getObjectTagging(getObjectTaggingRequest);
-        return getObjectTaggingResponse.getTagging().getTagSet();
+        return getObjectTaggingResponse.getTagSet();
     }
 
     private static void setObjectTags(AmazonS3 s3Client, String bucketName, String objectKey, List<Tag> newTags) {
