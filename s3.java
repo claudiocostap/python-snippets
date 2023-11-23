@@ -2,6 +2,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 
+import java.util.List;
+
 public class ChangeS3ObjectTag {
 
     public static void main(String[] args) {
@@ -19,16 +21,27 @@ public class ChangeS3ObjectTag {
                 .withRegion(Regions.US_EAST_1) // Substitua pela sua região
                 .build();
 
-        // Obtenha as tags existentes do objeto
-        GetObjectTaggingRequest getObjectTaggingRequest = new GetObjectTaggingRequest(bucketName, objectKey);
-        GetObjectTaggingResponse getObjectTaggingResponse = s3Client.getObjectTagging(getObjectTaggingRequest);
-        TagSet tagSet = getObjectTaggingResponse.getTagging();
+        // Obtenha a listagem de objetos
+        ListObjectsV2Request listObjectsRequest = new ListObjectsV2Request()
+                .withBucketName(bucketName)
+                .withPrefix(objectKey);
 
-        // Adicione ou modifique tags conforme necessário
-        tagSet.setTag("NovaTag", "ValorDaNovaTag");
+        ListObjectsV2Response listObjectsResponse = s3Client.listObjectsV2(listObjectsRequest);
+        List<S3ObjectSummary> objectSummaries = listObjectsResponse.getObjectSummaries();
 
-        // Atualize as tags do objeto
-        SetObjectTaggingRequest setObjectTaggingRequest = new SetObjectTaggingRequest(bucketName, objectKey, tagSet);
-        s3Client.setObjectTagging(setObjectTaggingRequest);
+        // Verifique se há objetos e obtenha as tags do primeiro objeto
+        if (!objectSummaries.isEmpty()) {
+            String firstObjectKey = objectSummaries.get(0).getKey();
+            GetObjectTaggingRequest getObjectTaggingRequest = new GetObjectTaggingRequest(bucketName, firstObjectKey);
+            GetObjectTaggingResponse getObjectTaggingResponse = s3Client.getObjectTagging(getObjectTaggingRequest);
+            TagSet tagSet = getObjectTaggingResponse.getTagging();
+
+            // Adicione ou modifique tags conforme necessário
+            tagSet.setTag("NovaTag", "ValorDaNovaTag");
+
+            // Atualize as tags do objeto
+            SetObjectTaggingRequest setObjectTaggingRequest = new SetObjectTaggingRequest(bucketName, firstObjectKey, tagSet);
+            s3Client.setObjectTagging(setObjectTaggingRequest);
+        }
     }
 }
