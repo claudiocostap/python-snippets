@@ -1,0 +1,14 @@
+wget https://archive.org/download/java-1.7.0-openjdk-1.7.0.131-2.6.9.0.amzn1.x86_64/java-1.7.0-openjdk-1.7.0.131-2.6.9.0.amzn1.x86_64.rpm
+
+
+sudo yum localinstall java-1.7.0-openjdk-1.7.0.131-2.6.9.0.amzn1.x86_64.rpm -y
+
+
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk.x86_64
+
+
+echo "export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk.x86_64" >> ~/.bashrc
+source ~/.bashrc
+
+
+java -version
